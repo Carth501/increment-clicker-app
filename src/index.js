@@ -11,7 +11,7 @@ class AutoGenerators extends React.Component {
                 cost: this.calculateNextAutoGenCost(0),
             }
         }
-        setInterval(() => {this.props.onInterval(this.state.autoGens.count / 10)}, 100);
+        setInterval(() => {this.props.onInterval(this.state.autoGens.count / 100)}, 10);
     }
 
     render() {
@@ -31,7 +31,7 @@ class AutoGenerators extends React.Component {
         const success = this.props.onBuy(this.state.autoGens.cost);
         if(success) {
             state.autoGens.count += 1;
-            console.log(state.autoGens, " @ ", state.cost);
+            console.log(state.autoGens.count, " @ ", state.autoGens.cost);
         }
         state.autoGens.cost = this.calculateNextAutoGenCost(state.autoGens.count);
         this.setState(state);
@@ -47,13 +47,18 @@ class Game extends React.Component {
         super(props);
         this.state = {
             byteDimes: 0,
+            showAutoGens: false,
         }
     }
 
     createByteDimes(i) {
         let byteDimes = this.state.byteDimes;
         byteDimes += i;
-        this.setState({byteDimes});
+        let showAutoGens = this.state.showAutoGens;
+        if(byteDimes >= 10){
+            showAutoGens = true;
+        }
+        this.setState({byteDimes, showAutoGens});
     }
 
     costByteDimes(i) {
@@ -65,6 +70,12 @@ class Game extends React.Component {
     }
 
     render() {
+        let autoGens = null;
+        if(this.state.showAutoGens){
+            autoGens = <AutoGenerators 
+                onInterval={(i) => this.createByteDimes(i)}
+                onBuy={(i) => this.costByteDimes(i)}/>;
+        }
         return (
             <div className="game">
                 <div className="ByteDimes: ">
@@ -72,9 +83,7 @@ class Game extends React.Component {
                 </div>
                 {this.renderFirstOrderGenerate()}
                 <div className="container">
-                    <AutoGenerators 
-                        onInterval={(i) => this.createByteDimes(i)}
-                        onBuy={(i) => this.costByteDimes(i)}/>
+                    {autoGens}
                 </div>
             </div>
         );
